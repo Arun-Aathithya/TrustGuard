@@ -1,0 +1,189 @@
+/* ==========================================================================
+   TrustGuard AI — design tokens
+   Visual direction: an industrial control-room instrument panel, not a
+   generic SaaS dashboard. Angular readouts, hairline dividers, a restrained
+   dial/gauge language borrowed from plant-floor monitoring equipment.
+   ========================================================================== */
+
+:root {
+  /* Color: graphite base with a cool blue undertone, three status accents
+     borrowed from industrial indicator-light convention (teal=good,
+     amber=caution, red=fault) plus one cyan highlight for data/telemetry. */
+  --bg-void: #0a0e13;
+  --bg-base: #0e141b;
+  --bg-panel: #131a22;
+  --bg-panel-raised: #182029;
+  --bg-inset: #0b1017;
+  --border-hairline: #232e39;
+  --border-strong: #303e4c;
+
+  --text-primary: #e7edf3;
+  --text-secondary: #8a99a8;
+  --text-tertiary: #566270;
+
+  --accent-trust: #23c4a8;
+  --accent-trust-dim: #164941;
+  --accent-caution: #de9c3d;
+  --accent-caution-dim: #4a3818;
+  --accent-fault: #de5a5a;
+  --accent-fault-dim: #4a2020;
+  --accent-signal: #4a9fd8;
+  --accent-signal-dim: #1c3140;
+
+  --font-display: "Space Grotesk", "Helvetica Neue", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+
+  --radius-sm: 3px;
+  --radius-md: 5px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--accent-signal-dim);
+  color: var(--text-primary);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* thin scrollbars matching the instrument-panel feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* keyboard users always see where focus is */
+:focus-visible {
+  outline: 2px solid var(--accent-signal);
+  outline-offset: 2px;
+}
+.tg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.tg-table th {
+  text-align: left;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-hairline);
+  white-space: nowrap;
+}
+.tg-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border-hairline);
+  vertical-align: middle;
+}
+.tg-btn {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.tg-btn:hover:not(:disabled) {
+  background: var(--bg-panel-raised);
+}
+.tg-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.tg-input {
+  background: var(--bg-inset);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 12.5px;
+  width: 100%;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ===================== Phase 3: layout, responsiveness, accessibility ===================== */
+.tg-app { display: flex; height: 100vh; overflow: hidden; }
+.tg-main { flex: 1; min-width: 0; overflow-y: auto; background: var(--bg-base); }
+.tg-main:focus { outline: none; }
+.tg-page { padding: 22px 28px 40px; }
+.tg-sidebar { width: 268px; flex-shrink: 0; border-right: 1px solid var(--border-hairline); background: var(--bg-base); display: flex; flex-direction: column; height: 100%; }
+.tg-sidebar-scroll { overflow-y: auto; flex: 1; padding: 10px 0; }
+.tg-panel { background: var(--bg-panel); border: 1px solid var(--border-hairline); border-radius: var(--radius-md); padding: 14px 16px; }
+.tg-skip { position: absolute; left: 8px; top: -60px; z-index: 100; background: var(--accent-signal); color: #06121b; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; }
+.tg-skip:focus { top: 8px; }
+.tg-btn { min-height: 32px; }
+.tg-modal-backdrop { position: fixed; inset: 0; background: rgba(4, 8, 12, 0.72); z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding: 24px 12px; overflow-y: auto; }
+.tg-modal { width: 100%; max-width: 820px; background: var(--bg-panel); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+.tg-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 0; }
+.tg-facts dt { font-size: 10.5px; letter-spacing: 0.05em; color: var(--text-tertiary); text-transform: uppercase; }
+.tg-facts dd { margin: 2px 0 0; font-size: 14px; }
+.tg-chart { height: 220px; }
+.tg-chart-title { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+/* tertiary text was ~3:1 on panels; lift it to meet WCAG AA (4.5:1) */
+:root { --text-tertiary: #7d8b99; }
+table { max-width: 100%; }
+
+/* Tablet: narrower sidebar. Mobile: sidebar becomes a top bar, content stacks. */
+@media (max-width: 1024px) {
+  .tg-sidebar { width: 220px; }
+  .tg-page { padding: 18px 18px 32px; }
+}
+@media (max-width: 760px) {
+  .tg-app { flex-direction: column; height: auto; min-height: 100vh; overflow: visible; }
+  .tg-sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-hairline); }
+  .tg-sidebar-scroll { max-height: 38vh; }
+  .tg-main { overflow: visible; }
+  .tg-page { padding: 14px 12px 28px; }
+  .tg-modal { padding: 14px 12px; }
+  .tg-chart { height: 180px; }
+}
+/* wide tables (hardware, fleet) scroll inside themselves instead of the whole page */
+.tg-scroll-x { overflow-x: auto; }

@@ -1,0 +1,9 @@
+# Copy next to the broker config. Least privilege:
+# the backend may only READ sensor topics; each device may only WRITE its own machine's topics.
+# Topics look like trustguard/sensors/<machine_id>/<sensor_type>/<sensor_id>, so "<machine_id>/#" covers all of them.
+user trustguard_backend
+topic read trustguard/sensors/#
+
+user esp32
+# replace 1 with the machine id this device belongs to; add one user per device for real deployments
+topic write trustguard/sensors/1/#
