@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAdmin } from "../hooks/useAdmin";
 import {
   errorMessage, fetchTelegramStatus, registerDevice, sendTelegramTest, testDevice, unregisterDevice,
 } from "../api/client";
@@ -105,6 +106,7 @@ function TestResult({ result, onClose }) {
 }
 
 function TelegramCard() {
+  const { isAdmin } = useAdmin();
   const [st, setSt] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -158,8 +160,8 @@ function TelegramCard() {
             </div>
           )}
           <div style={{ gridColumn: "1 / -1", display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-            <button className="tg-btn" onClick={sendTest} disabled={busy || !st.enabled}>{busy ? "Sending…" : "Send test message"}</button>
-            <span style={{ color: "var(--text-tertiary)" }}>Needs the admin key (see Admin access below). Commands: /status /machine /alerts /devices /mute</span>
+            {isAdmin && <button className="tg-btn" onClick={sendTest} disabled={busy || !st.enabled}>{busy ? "Sending…" : "Send test message"}</button>}
+            <span style={{ color: "var(--text-tertiary)" }}>Commands: /status /machine /alerts /devices /mute</span>
           </div>
           {result && <div role={result.ok ? "status" : "alert"} style={{ gridColumn: "1 / -1", color: result.ok ? "var(--accent-trust)" : "var(--accent-fault)" }}>{result.text}</div>}
         </div>
@@ -170,6 +172,7 @@ function TelegramCard() {
 
 export default function HardwareManagement({ dashboards, hardware }) {
   const { broker, devices, events, loading, error, reload } = hardware;
+  const { isAdmin } = useAdmin();
   const [showForm, setShowForm] = useState(false);
   const [prefill, setPrefill] = useState(null);
   const [onlyRegistered, setOnlyRegistered] = useState(false);
@@ -246,7 +249,6 @@ export default function HardwareManagement({ dashboards, hardware }) {
 
       <TelegramCard />
 
-      <AdminAccess />
 
       {actionError && <div role="alert" style={{ color: "var(--accent-fault)", fontSize: 13 }}>{actionError}</div>}
       {testResult && <TestResult result={testResult} onClose={() => setTestResult(null)} />}
@@ -260,7 +262,7 @@ export default function HardwareManagement({ dashboards, hardware }) {
         />
       ) : (
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-          <button className="tg-btn" onClick={() => { setPrefill(null); setShowForm(true); }} disabled={dashboards.length === 0}>+ Register device</button>
+          {isAdmin && <button className="tg-btn" onClick={() => { setPrefill(null); setShowForm(true); }} disabled={dashboards.length === 0}>+ Register device</button>}
           <label style={{ fontSize: 12.5, color: "var(--text-secondary)", display: "flex", gap: 6, alignItems: "center" }}>
             <input type="checkbox" checked={onlyRegistered} onChange={(e) => setOnlyRegistered(e.target.checked)} /> Show registered hardware only
           </label>
@@ -302,16 +304,16 @@ export default function HardwareManagement({ dashboards, hardware }) {
                             <button className="tg-btn" disabled={testing === d.sensor_id} onClick={() => runTest(d)} aria-label={`Test connection for ${d.device_id}`}>
                               {testing === d.sensor_id ? "Testing…" : "Test connection"}
                             </button>
-                            <button className="tg-btn" onClick={() => remove(d)} aria-label={`Unregister ${d.device_id}`}>Unregister</button>
+                            {isAdmin && <button className="tg-btn" onClick={() => remove(d)} aria-label={`Unregister ${d.device_id}`}>Unregister</button>}
                           </>
-                        ) : (
+                        ) : isAdmin ? (
                           <button
                             className="tg-btn"
                             onClick={() => { setPrefill({ machine_id: d.machine_id, sensor_type: d.sensor_type, unit: "" }); setShowForm(true); window.scrollTo?.({ top: 0 }); }}
                           >
                             Register…
                           </button>
-                        )}
+                        ) : null}
                       </div>
                     </td>
                   </tr>

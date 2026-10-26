@@ -1,4 +1,7 @@
+import { useState } from "react";
+import AdminLogin from "./AdminLogin";
 import ConnectionStatus from "./ConnectionStatus";
+import { useAdmin } from "../hooks/useAdmin";
 
 const STATUS_META = {
   operational: { label: "Operational", color: "var(--accent-trust)" },
@@ -31,19 +34,31 @@ function NavButton({ active, onClick, children }) {
 }
 
 export default function Sidebar({ dashboards, selectedId, onSelect, mode, lastSyncAt, view, onView }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { isAdmin } = useAdmin();
+  const go = (v) => { onView(v); setMenuOpen(false); };
+  const pick = (id) => { onSelect(id); setMenuOpen(false); };
   return (
-    <aside className="tg-sidebar" aria-label="Navigation">
-      <div style={{ padding: "20px 18px 14px", borderBottom: "1px solid var(--border-hairline)" }}>
-        <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-0.01em" }}>TrustGuard AI</div>
-        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>Sensor-trust predictive maintenance</div>
+    <aside className={`tg-sidebar${menuOpen ? " is-open" : ""}`} aria-label="Navigation">
+      <div className="tg-sidebar-head">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+          <div>
+            <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-0.01em" }}>TrustGuard AI</div>
+            <div className="tg-tagline" style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>Sensor-trust predictive maintenance</div>
+          </div>
+          <button className="tg-btn tg-menu-btn" aria-expanded={menuOpen} aria-controls="tg-sidebar-body" onClick={() => setMenuOpen((o) => !o)}>
+            {menuOpen ? "Close" : "Menu"}
+          </button>
+        </div>
         <ConnectionStatus dashboards={dashboards} mode={mode} lastSyncAt={lastSyncAt} />
       </div>
 
-      <div className="tg-sidebar-scroll">
+      <div className="tg-sidebar-scroll" id="tg-sidebar-body">
         <nav aria-label="Main">
-          <NavButton active={view === "overview"} onClick={() => onView("overview")}>Overview</NavButton>
-          <NavButton active={view === "hardware"} onClick={() => onView("hardware")}>Hardware management</NavButton>
-          <NavButton active={view === "add"} onClick={() => onView("add")}>+ Add machine</NavButton>
+          <NavButton active={view === "live"} onClick={() => go("live")}>Live readings</NavButton>
+          <NavButton active={view === "overview"} onClick={() => go("overview")}>Fleet overview</NavButton>
+          <NavButton active={view === "hardware"} onClick={() => go("hardware")}>Hardware management</NavButton>
+          {isAdmin && <NavButton active={view === "add"} onClick={() => go("add")}>+ Add machine</NavButton>}
         </nav>
         <div style={{ fontSize: 11, color: "var(--text-tertiary)", padding: "14px 18px 8px", letterSpacing: "0.04em" }}>
           MACHINES ({dashboards.length})
@@ -58,7 +73,7 @@ export default function Sidebar({ dashboards, selectedId, onSelect, mode, lastSy
           return (
             <button
               key={d.machine.id}
-              onClick={() => onSelect(d.machine.id)}
+              onClick={() => pick(d.machine.id)}
               aria-current={active ? "page" : undefined}
               style={{
                 width: "100%",
@@ -92,6 +107,7 @@ export default function Sidebar({ dashboards, selectedId, onSelect, mode, lastSy
             </button>
           );
         })}
+        <AdminLogin />
       </div>
     </aside>
   );

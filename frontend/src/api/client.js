@@ -98,6 +98,7 @@ export function setAdminKey(key) {
   } catch {
     /* storage unavailable - key just won't persist */
   }
+  try { window.dispatchEvent(new Event("tg-admin-key")); } catch { /* not in a browser */ }
 }
 
 api.interceptors.request.use((config) => {
@@ -130,3 +131,7 @@ export const testDevice = async (sensorId) => (await api.post(`/api/hardware/dev
 // ---- Telegram bot (status has no secrets; the test message needs the admin key) ----
 export const fetchTelegramStatus = async () => (await api.get("/api/telegram/status")).data;
 export const sendTelegramTest = async () => (await api.post("/api/telegram/test")).data;
+
+// ---- Admin access (lets the UI hide edit controls from visitors) ----
+export const fetchAuthStatus = async () => (await api.get("/api/hardware/auth-status")).data;
+export const checkAdmin = async () => (await api.post("/api/hardware/admin-check")).data;

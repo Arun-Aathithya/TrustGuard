@@ -31,6 +31,18 @@ import os
 
 router = APIRouter(prefix="/api/hardware", tags=["hardware"])
 
+
+@router.get("/auth-status")
+def auth_status():
+    """Public, no secrets: tells the dashboard whether admin actions need a key (so it can hide edit controls from visitors)."""
+    return {"enforced": auth_enforced()}
+
+
+@router.post("/admin-check", dependencies=[Depends(require_admin)])
+def admin_check():
+    """200 only if the X-API-Key header is the admin key (or no key is configured). Used by the dashboard's admin login."""
+    return {"admin": True, "enforced": auth_enforced()}
+
 TOPIC_RE = re.compile(r"^[A-Za-z0-9_.\-]+(/[A-Za-z0-9_.\-]+)+$")  # no MQTT wildcards (+ #)
 
 

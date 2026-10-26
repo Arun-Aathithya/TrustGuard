@@ -7,12 +7,15 @@ import AddMachine from "./pages/AddMachine";
 import Dashboard from "./pages/Dashboard";
 import HardwareManagement from "./pages/HardwareManagement";
 import Overview from "./pages/Overview";
+import LiveView from "./pages/LiveView";
+import { useAdmin } from "./hooks/useAdmin";
 import SecurityBanner from "./components/SecurityBanner";
 
 export default function App() {
   const { dashboards, error, setDashboards, mode, lastSyncAt } = useLiveDashboards();
   const [selectedId, setSelectedId] = useState(null);
-  const [view, setView] = useState("overview"); // overview | machine | hardware | add
+  const [view, setView] = useState("live"); // live | overview | machine | hardware | add
+  const { isAdmin } = useAdmin();
   const hardware = useHardware(5000, { withDetails: view === "hardware" });
 
   useEffect(() => {
@@ -38,7 +41,7 @@ export default function App() {
   };
   const handleRemoved = async () => {
     setSelectedId(null);
-    setView("overview");
+    setView("live");
     await refresh();
   };
 
@@ -78,8 +81,16 @@ export default function App() {
         {!error && !loaded && (
           <div role="status" style={{ padding: 28, color: "var(--text-secondary)", fontSize: 13 }}>Loading…</div>
         )}
-        {(view === "add" || (noMachines && view !== "hardware")) && (
+        {((view === "add" && isAdmin) || (noMachines && isAdmin && view !== "hardware")) && (
           <AddMachine empty={noMachines} onCreated={handleCreated} onOpenHardware={() => setView("hardware")} />
+        )}
+        {noMachines && !isAdmin && view !== "hardware" && (
+          <div role="status" style={{ padding: 28, color: "var(--text-secondary)", fontSize: 14 }}>
+            No machines have been set up yet. An admin can add one after logging in from the menu.
+          </div>
+        )}
+        {view === "live" && dashboards.length > 0 && (
+          <LiveView dashboards={dashboards} onOpenMachine={(id) => { setSelectedId(id); setView("machine"); }} />
         )}
         {view === "overview" && dashboards.length > 0 && (
           <Overview

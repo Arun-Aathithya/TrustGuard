@@ -38,10 +38,10 @@
 // ======================= EDIT THESE =======================
 const char* WIFI_SSID    = "OPPO K13 Turbo 5G";   // must be 2.4 GHz
 const char* WIFI_PASS    = "22052007";
-const char* MQTT_HOST    = "10.138.87.108";       // laptop IPv4 (run ipconfig) - changes if the hotspot changes!
-const uint16_t MQTT_PORT = 1883;                  // 1883 = plain, 8883 = TLS
-const bool USE_TLS       = false;                 // false for desk test, true + CA_CERT for real use
-const char* MQTT_USER    = "esp32";
+const char* MQTT_HOST    = "q72067c0.ala.asia-southeast1.emqxsl.com";       // laptop IPv4 (run ipconfig) - changes if the hotspot changes!
+const uint16_t MQTT_PORT = 8883;                  // 1883 = plain, 8883 = TLS
+const bool USE_TLS       = true;                 // false for desk test, true + CA_CERT for real use
+const char* MQTT_USER    = "esp32user";
 const char* MQTT_PASS    = "Arun2007";
 const char* DEVICE_ID    = "ESP32-A1";            // must match the registered device_id exactly
 const int   MACHINE_ID   = 1;                     // must match the machine in TrustGuard
@@ -50,7 +50,7 @@ const unsigned long PUBLISH_MS = 5000;
 // 0 = legacy topic  trustguard/sensors/<machine>/<type>
 // >0 = per-sensor   trustguard/sensors/<machine>/<type>/<sensor_id>  (use the ID shown on the website)
 const int TEMP_SENSOR_ID = 1;
-const int VIB_SENSOR_ID  = 3;
+const int VIB_SENSOR_ID  = 2;
 
 // OLED
 const int  OLED_W    = 128;
@@ -65,7 +65,7 @@ const int PIN_DS18B20 = 4;
 // TLS only: paste the broker CA certificate (PEM) between the quotes.
 const char* CA_CERT = "";
 // Lab bench only: skip certificate verification. Never enable on a shared network.
-const bool ALLOW_INSECURE_TLS = false;
+const bool ALLOW_INSECURE_TLS = true;
 // ==========================================================
 
 WiFiClient plainClient;
@@ -99,17 +99,25 @@ void showStatus(const String& l1, const String& l2 = "", const String& l3 = "") 
 void showReadings(bool tempOk, float tC, bool vibOk, float vib) {
   if (!oledOk) return;
   display.clearDisplay();
-  display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
+  // Row 1 (small): link status
+  display.setTextSize(1);
   display.setCursor(0, 0);
-  display.println("TrustGuard AI");
   display.print("WiFi:"); display.print(WiFi.status() == WL_CONNECTED ? "OK " : "-- ");
-  display.print("MQTT:"); display.println(mqtt.connected() ? "OK" : "--");
-  display.print("Temp: ");
-  if (tempOk) { display.print(tC, 1); display.println(" C"); } else display.println("--");
-  display.print("Vib : ");
-  if (vibOk) { display.print(vib, 2); display.println(" m/s2"); } else display.println("--");
-  display.print("ID: "); display.println(DEVICE_ID);
+  display.print("MQTT:"); display.print(mqtt.connected() ? "OK" : "--");
+  // Row 2 (medium): temperature, 2 decimals
+  display.setTextSize(2);
+  display.setCursor(0, 12);
+  display.print("T ");
+  if (tempOk) { display.print(tC, 2); display.print("C"); } else display.print("--");
+  // Row 3 (medium): vibration, 3 decimals
+  display.setCursor(0, 32);
+  display.print("V ");
+  if (vibOk) display.print(vib, 3); else display.print("--");
+  // Row 4 (small): device id + unit hint
+  display.setTextSize(1);
+  display.setCursor(0, 54);
+  display.print(DEVICE_ID); display.print("  vib m/s2");
   display.display();
 }
 

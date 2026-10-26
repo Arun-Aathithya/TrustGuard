@@ -13,6 +13,7 @@ import FreshnessBanner, { LastUpdateLine } from "../components/FreshnessBanner";
 import { deleteMachine, deleteSensor, errorMessage } from "../api/client";
 import AddSensorForm from "../components/AddSensorForm";
 import { sensorName } from "../lib/format";
+import { useAdmin } from "../hooks/useAdmin";
 
 const STATUS_META = {
   operational: { label: "Operational", color: "var(--accent-trust)" },
@@ -21,6 +22,7 @@ const STATUS_META = {
 };
 
 export default function Dashboard({ dashboard, onSimulationResult, onOpenHardware, onRemoved, onChanged }) {
+  const { isAdmin } = useAdmin();
   const [refreshKey, setRefreshKey] = useState(0);
   const [detailId, setDetailId] = useState(null);
   const [localAlerts, setLocalAlerts] = useState(dashboard.open_alerts);
@@ -99,7 +101,7 @@ export default function Dashboard({ dashboard, onSimulationResult, onOpenHardwar
           </div>
           <LastUpdateLine sensors={dashboard.sensors.map((s) => s.sensor)} />
         </div>
-        <button className="tg-btn" onClick={handleRemove}>Remove machine</button>
+        {isAdmin && <button className="tg-btn" onClick={handleRemove}>Remove machine</button>}
       </div>
       {removeError && <div role="alert" style={{ fontSize: 12.5, color: "var(--accent-fault)" }}>{removeError}</div>}
 
@@ -111,8 +113,8 @@ export default function Dashboard({ dashboard, onSimulationResult, onOpenHardwar
           </span>
         </div>
       )}
-      {dashboard.sensors.length === 0 && !adding && <div><button className="tg-btn" onClick={() => setAdding(true)}>+ Add sensor</button></div>}
-      {dashboard.sensors.length === 0 && adding && <AddSensorForm machineId={dashboard.machine.id} onDone={handleSensorAdded} onCancel={() => setAdding(false)} />}
+      {isAdmin && dashboard.sensors.length === 0 && !adding && <div><button className="tg-btn" onClick={() => setAdding(true)}>+ Add sensor</button></div>}
+      {isAdmin && dashboard.sensors.length === 0 && adding && <AddSensorForm machineId={dashboard.machine.id} onDone={handleSensorAdded} onCancel={() => setAdding(false)} />}
 
       {dashboard.sensors.length > 0 && <FreshnessBanner sensors={dashboard.sensors.map((s) => s.sensor)} />}
 
@@ -131,12 +133,12 @@ export default function Dashboard({ dashboard, onSimulationResult, onOpenHardwar
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 10 }}>
           <div style={{ fontSize: 12.5, color: "var(--text-secondary)" }}>SENSORS ({dashboard.sensors.length})</div>
-          {!adding && <button className="tg-btn" onClick={() => setAdding(true)}>+ Add sensor</button>}
+          {isAdmin && !adding && <button className="tg-btn" onClick={() => setAdding(true)}>+ Add sensor</button>}
         </div>
-        {adding && <div style={{ marginBottom: 12 }}><AddSensorForm machineId={dashboard.machine.id} onDone={handleSensorAdded} onCancel={() => setAdding(false)} /></div>}
+        {isAdmin && adding && <div style={{ marginBottom: 12 }}><AddSensorForm machineId={dashboard.machine.id} onDone={handleSensorAdded} onCancel={() => setAdding(false)} /></div>}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 12 }}>
           {dashboard.sensors.map((s) => (
-            <SensorCard key={s.sensor.id} snapshot={s} onOpen={setDetailId} onRemove={handleRemoveSensor} />
+            <SensorCard key={s.sensor.id} snapshot={s} onOpen={setDetailId} onRemove={isAdmin ? handleRemoveSensor : undefined} />
           ))}
         </div>
       </div>
@@ -148,7 +150,7 @@ export default function Dashboard({ dashboard, onSimulationResult, onOpenHardwar
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, alignItems: "start" }}>
         <AlertsFeed alerts={alerts} onResolved={handleResolved} />
-        <section aria-label="Simulation controls" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {isAdmin && <section aria-label="Simulation controls" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ fontSize: 11.5, color: "var(--accent-signal)" }} className="mono">
             ◇ SIMULATION ONLY. {hasHardware ? "Never changes real hardware sensors; affects simulated sensors only." : "No hardware is connected to this machine."}
           </div>
@@ -160,7 +162,7 @@ export default function Dashboard({ dashboard, onSimulationResult, onOpenHardwar
           ) : (
             <ScenarioControls machineId={dashboard.machine.id} onTick={handleTick} />
           )}
-        </section>
+        </section>}
       </div>
         </>
       )}

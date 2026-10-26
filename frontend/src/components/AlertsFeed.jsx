@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { errorMessage, resolveAlert, setAdminKey } from "../api/client";
+import { useAdmin } from "../hooks/useAdmin";
 
 const SEVERITY_COLOR = {
   info: "var(--accent-trust)",
@@ -17,6 +18,7 @@ function timeAgo(iso) {
 }
 
 export default function AlertsFeed({ alerts, onResolved }) {
+  const { isAdmin } = useAdmin();
   const [error, setError] = useState(null);
   const [needsKey, setNeedsKey] = useState(null); // alert id awaiting an admin key
   const [keyInput, setKeyInput] = useState("");
@@ -87,7 +89,7 @@ export default function AlertsFeed({ alerts, onResolved }) {
               {alert.alert_type.replace(/_/g, " ").toUpperCase()} · {timeAgo(alert.created_at)}
             </div>
           </div>
-          <button
+          {isAdmin && <button
             aria-label={`Resolve alert: ${alert.message.slice(0, 40)}`}
             onClick={() => handleResolve(alert.id)}
             style={{
@@ -102,7 +104,7 @@ export default function AlertsFeed({ alerts, onResolved }) {
             }}
           >
             Resolve
-          </button>
+          </button>}
         </div>
       ))}
     </div>

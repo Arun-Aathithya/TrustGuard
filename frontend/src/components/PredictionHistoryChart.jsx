@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import { errorMessage, fetchPredictionHistory, runSimulationTick } from "../api/client";
+import { useAdmin } from "../hooks/useAdmin";
 
 const options = {
   responsive: true,
@@ -33,7 +34,8 @@ const DEMO_TICKS = 10;
 function EmptyHistory({ count, dataSource, machineId, onTick, onOpenHardware, loadError }) {
   const [progress, setProgress] = useState(null); // null | number of ticks done
   const [error, setError] = useState(null);
-  const canSimulate = dataSource !== "hardware";
+  const { isAdmin } = useAdmin();
+  const canSimulate = dataSource !== "hardware" && isAdmin;
   const running = progress !== null;
 
   const generate = async () => {

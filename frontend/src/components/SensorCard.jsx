@@ -89,7 +89,7 @@ export default function SensorCard({ snapshot, onOpen, onRemove }) {
       </div>
 
       <div className="mono" style={{ fontSize: 24, fontWeight: 600, color: hasReading ? "var(--text-primary)" : "var(--text-tertiary)" }}>
-        {hasReading ? latest_value.toFixed(sensor.sensor_type === "vibration" ? 2 : 1) : "—"}
+        {hasReading ? latest_value.toFixed(sensor.sensor_type === "vibration" ? 3 : 2) : "—"}
         <span style={{ fontSize: 13, color: "var(--text-secondary)", marginLeft: 4 }} title={sensor.unit_warning || sensor.unit_note || undefined}>{sensor.display_unit || sensor.unit}</span>
       </div>
       {!hasReading && (

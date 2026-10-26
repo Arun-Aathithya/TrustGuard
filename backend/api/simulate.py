@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from database import schemas
 from database.models import Machine
 from database.session import get_db
+from api.security import require_admin
 from services.ingestion_service import ingest_reading, run_pipeline_for_machine
 from simulation.simulator import BASELINES, SCENARIOS, simulator
 
@@ -32,7 +33,7 @@ def list_scenarios():
     }
 
 
-@router.post("/tick", response_model=list[schemas.MachineDashboard])
+@router.post("/tick", response_model=list[schemas.MachineDashboard], dependencies=[Depends(require_admin)])
 def run_tick(payload: schemas.SimulationTick, db: Session = Depends(get_db)):
     """One simulated tick. Sensor-fault scenarios hit the temperature sensor only; machine_fault hits all."""
     from services.dashboard_service import build_machine_dashboard
