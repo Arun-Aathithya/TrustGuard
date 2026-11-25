@@ -36,13 +36,13 @@
 #include <time.h>
 
 // ======================= EDIT THESE =======================
-const char* WIFI_SSID    = "OPPO K13 Turbo 5G";   // must be 2.4 GHz
-const char* WIFI_PASS    = "22052007";
-const char* MQTT_HOST    = "q72067c0.ala.asia-southeast1.emqxsl.com";       // laptop IPv4 (run ipconfig) - changes if the hotspot changes!
+const char* WIFI_SSID    = "YOUR_WIFI_NAME";   // must be 2.4 GHz
+const char* WIFI_PASS    = "YOUR_WIFI_PASSWORD";
+const char* MQTT_HOST    = "YOUR_MQTT_BROKER_HOST";       // laptop IPv4 (run ipconfig) - changes if the hotspot changes!
 const uint16_t MQTT_PORT = 8883;                  // 1883 = plain, 8883 = TLS
 const bool USE_TLS       = true;                 // false for desk test, true + CA_CERT for real use
-const char* MQTT_USER    = "esp32user";
-const char* MQTT_PASS    = "Arun2007";
+const char* MQTT_USER    = "YOUR_MQTT_USERNAME";
+const char* MQTT_PASS    = "CHANGE_ME";
 const char* DEVICE_ID    = "ESP32-A1";            // must match the registered device_id exactly
 const int   MACHINE_ID   = 1;                     // must match the machine in TrustGuard
 const unsigned long PUBLISH_MS = 5000;
