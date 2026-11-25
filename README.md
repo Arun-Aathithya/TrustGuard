@@ -131,3 +131,10 @@ Free and built into the backend (standard library only). Pushes new alerts and u
 - **Prediction confidence** is the only place trust affects a prediction: low or conflicting trust lowers confidence, never risk.
 - **Cross-sensor verdicts** (`trust_engine/cross_sensor.py`): *machine change* (two or more sensors moved together: nobody is penalised, drift is not charged to any sensor), *sensor suspect* (one moved, two or more stayed normal: only that sensor loses trust), *cannot tell* (only two sensors and they disagree: nobody is blamed, confidence drops, an alert says "the two sensors disagree; cannot tell which is wrong"; add a third sensor to break the tie).
 - **Units**: a hardware vibration sensor reporting m/s² is not comparable with the mm/s baseline. Until it is calibrated it is kept out of risk and cross-sensor checks and flagged "Units not converted". After calibration it is shown as an index (`idx`), never as mm/s.
+
+## Configuring credentials safely
+
+No passwords are stored in this repository. Before flashing the ESP32, edit the placeholders at the top of
+`firmware/esp32_trustguard/esp32_trustguard.ino` (`WIFI_SSID`, `WIFI_PASS`, `MQTT_HOST`, `MQTT_USER`, `MQTT_PASS`)
+on your own machine, and **do not commit** those edits. The backend reads its secrets from `backend/.env`
+(copy `backend/.env.example`), which is git-ignored.
